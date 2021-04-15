@@ -1,0 +1,9 @@
+package com.portal.tests;
+
+import org.testng.annotations.Test;
+
+public class TestN1 {
+  @Test
+  public void f() {
+  }
+}

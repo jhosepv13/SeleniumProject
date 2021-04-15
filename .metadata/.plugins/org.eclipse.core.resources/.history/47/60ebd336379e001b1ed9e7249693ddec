@@ -1,0 +1,7 @@
+package com.portal.objects;
+
+public interface HomePageElements {
+
+	String MyaAccountButton = "//a[@id='dropdownCurrency']//span[@class='ink animate']";
+	String LoginButton = "//*[@class='dropdown-item active tr']";
+}

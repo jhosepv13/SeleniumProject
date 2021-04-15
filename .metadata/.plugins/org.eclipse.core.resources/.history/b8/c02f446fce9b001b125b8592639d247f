@@ -1,0 +1,87 @@
+package com.store.tests;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import java.io.FileReader;
+import java.io.Reader;
+
+public class CSVLogin {
+
+	private WebDriver driver;
+
+	@BeforeMethod
+	public void beforeMethod() {
+		driver = new ChromeDriver();
+		driver.get("http://demo-store.seleniumacademy.com/customer/account/login/");
+		driver.manage().window().maximize();
+	}
+
+	@Test(dataProvider = "login-data-csv")
+	public void testLoginData(String[] loginData) throws InterruptedException {
+		String username = loginData[0];
+		String password = loginData[1];
+		String expected = loginData[2];
+		String msgError;
+
+		driver.findElement(By.id("email")).sendKeys(username);
+		driver.findElement(By.id("pass")).sendKeys(password);
+		driver.findElement(By.id("send2")).click();
+		Thread.sleep(2000);
+		msgError = driver.findElement(By.tagName("h1")).getText();
+		Assert.assertEquals(msgError, expected);
+
+	}
+
+	@DataProvider(name = "login-data-csv")
+	public Object[][] readCSVData() throws Exception {
+
+		String[][] testData;
+
+		Reader read = new FileReader(
+				"/Users/lruiz/eclipse-workspace/Selenium_6/src/test/resources/data/login-data.csv");
+		Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(read);
+
+		int numOfRecords = 0;
+		int numOfColumns = 0;
+
+		for (CSVRecord record : records) {
+			++numOfRecords;
+			numOfColumns = record.size();
+		}
+
+		testData = new String[numOfRecords - 1][numOfColumns];
+		System.out.println("numberOfRecords = " + numOfRecords);
+		System.out.println("numberOfColumns = " + numOfColumns);
+
+		int currentRecord = 0;
+
+		read = new FileReader("/Users/lruiz/eclipse-workspace/Selenium_6/src/test/resources/data/login-data.csv");
+		records = CSVFormat.EXCEL.parse(read);
+
+		for (CSVRecord record : records) {
+			System.out.println("Reading test data ");
+			if (record.getRecordNumber() == 1) {
+				// System.out.println("record = " + record);
+				continue;
+			}
+
+			for (int i = 0; i < record.size(); i++) {
+				testData[currentRecord][i] = record.get(i);
+			}
+			currentRecord++;
+		}
+		return testData;
+	}
+
+	@AfterMethod
+	public void afterMethod() {
+		driver.close();
+	}
+
+}

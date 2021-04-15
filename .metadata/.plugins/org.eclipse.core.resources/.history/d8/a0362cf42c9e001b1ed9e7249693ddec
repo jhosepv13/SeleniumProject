@@ -1,0 +1,48 @@
+package com.portal.tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+public class BaseTest {
+	
+	public ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+
+	public ExtentHtmlReporter reporter;
+	public static ExtentReports extent;
+	public static ExtentTest logger;
+	
+	@BeforeTest
+	public void startReport() {
+
+		htmlReporter = new ExtentHtmlReporter(
+				System.getProperty("user.dir") + "/src/test/resources/reports/MyReport.html");
+		extent = new ExtentReports();
+		extent.attachReporter(htmlReporter);
+		extent.setSystemInfo("Hostname", "Galaxy Final Project");
+		extent.setSystemInfo("Environment", "SandBox");
+		extent.setSystemInfo("Username", "Jhosep Bazan Bernales");
+
+		// settting Report
+		htmlReporter.config().setDocumentTitle("Report of PHPTRAVELS");
+		htmlReporter.config().setReportName("Report");
+		htmlReporter.config().setTheme(Theme.DARK);
+
+	}
+	
+	@BeforeMethod
+	public void setUp() {
+		driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get("http://demo-store.seleniumacademy.com/");
+	}
+	
+	
+}

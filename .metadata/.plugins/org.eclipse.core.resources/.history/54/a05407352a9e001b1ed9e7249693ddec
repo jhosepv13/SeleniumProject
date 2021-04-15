@@ -1,0 +1,12 @@
+package com.portal.events;
+
+import org.openqa.selenium.WebDriver;
+
+public class HomePageEvents {
+
+	WebDriver driver;
+	
+	public HomePageEvents(WebDriver driver) {
+		this.driver = driver;
+	}
+}

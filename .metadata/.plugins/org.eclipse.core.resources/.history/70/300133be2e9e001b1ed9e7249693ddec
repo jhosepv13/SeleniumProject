@@ -1,0 +1,7 @@
+package com.portal.tests;
+
+import com.portal.tests.BaseTest;
+
+public class TestN1 extends BaseTest {
+
+}

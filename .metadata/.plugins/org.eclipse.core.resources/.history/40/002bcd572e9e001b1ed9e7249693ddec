@@ -1,0 +1,153 @@
+package pe.edu.galaxy.extent;
+
+import org.testng.annotations.Test;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.markuputils.ExtentColor;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+import org.testng.annotations.BeforeMethod;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.SkipException;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterTest;
+
+public class ExtendReport {
+
+	private WebDriver driver;
+	private ExtentHtmlReporter htmlReporter;
+	private ExtentReports extent;
+	private ExtentTest logger;
+
+	@BeforeTest
+	public void startReport() {
+
+		htmlReporter = new ExtentHtmlReporter(
+				System.getProperty("user.dir") + "/src/test/resources/reports/MyReport.html");
+		extent = new ExtentReports();
+		extent.attachReporter(htmlReporter);
+		extent.setSystemInfo("Hostname", "Galaxy Team");
+		extent.setSystemInfo("Environment", "SandBox");
+		extent.setSystemInfo("Username", "Luis Ruiz");
+
+		// settting Report
+		htmlReporter.config().setDocumentTitle("Report of Store Maddison");
+		htmlReporter.config().setReportName("Login Report");
+		htmlReporter.config().setTheme(Theme.DARK);
+
+	}
+
+	@BeforeMethod
+	public void setUp() {
+		driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get("http://demo-store.seleniumacademy.com/");
+	}
+
+	@Test
+	public void verifyTitle() {
+		logger = extent.createTest("Verify Store Title", "to verify if title is correct");
+		Assert.assertEquals(driver.getTitle(), "Madison Island");
+	}
+
+	@Test
+	public void verifyLogo() {
+		logger = extent.createTest("to verify Logo Store Title");
+		boolean img = driver.findElement(By.xpath("//img[@class='large']")).isEnabled();
+		logger.createNode("Logo is present");
+		Assert.assertTrue(img);
+		// logger.createNode("Logo is not present");
+		// Assert.assertFalse(img);
+	}
+
+	@Test
+	public void verifyCurrusel() {
+		logger = extent.createTest("to verify Carrusel");
+		boolean img = driver.findElement(By.xpath("//div[@class='slideshow-container']")).isDisplayed();
+		logger.createNode("Currusel is not present");
+		Assert.assertFalse(img);
+	}
+
+	@Test
+	public void verifyMenu() {
+		logger = extent.createTest("to verify Menu");
+		boolean nav = driver.findElement(By.xpath("/html/body/div/div[2]/header/div/div[3]/nav/ol")).isDisplayed();
+		logger.createNode("Menu Nav options are showing");
+		Assert.assertFalse(nav);
+		logger.createNode("Menu Nav options not are showing");
+		Assert.assertFalse(nav);
+	}
+
+	@Test
+	public void verifyHeader() {
+		logger = extent.createTest("to verify header");
+		throw new SkipException("Script not implemente yet");
+	}
+
+	public static String getScreenShot(WebDriver driver, String screenshotName) throws IOException {
+
+		String dateName = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+		TakesScreenshot ts = (TakesScreenshot) driver;
+
+		File source = ts.getScreenshotAs(OutputType.FILE);
+
+		String destination = System.getProperty("user.dir") + "/Screenshots/" + screenshotName + dateName + ".png";
+
+		File finalDestination = new File(destination);
+		FileUtils.copyFile(source, finalDestination);
+
+		return destination;
+	}
+
+	@AfterMethod
+	public void getResult(ITestResult result) throws Exception {
+
+		if (result.getStatus() == ITestResult.FAILURE) {
+
+			logger.log(Status.FAIL,
+					MarkupHelper.createLabel(result.getName() + " - Test Case Failed", ExtentColor.RED));
+			logger.log(Status.FAIL,
+					MarkupHelper.createLabel(result.getThrowable() + " - Test Case Failed", ExtentColor.RED));
+
+			String screenshotPath = getScreenShot(driver, result.getName());
+
+			logger.fail("Test Case Failed Snapshot is below " + logger.addScreenCaptureFromPath(screenshotPath));
+
+		} else if (result.getStatus() == ITestResult.SKIP) {
+
+			logger.log(Status.SKIP,
+					MarkupHelper.createLabel(result.getName() + " - Test Case Skipped", ExtentColor.BLUE));
+
+		} else if (result.getStatus() == ITestResult.SUCCESS) {
+
+			logger.log(Status.PASS,
+					MarkupHelper.createLabel(result.getName() + " Test Case PASSED", ExtentColor.GREEN));
+		}
+		driver.quit();
+	}
+
+	@AfterTest
+	public void makeReport() {
+		extent.flush();
+	}
+
+}

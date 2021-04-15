@@ -1,0 +1,5 @@
+package com.portal.events;
+
+public class LoginPageEvents {
+
+}
